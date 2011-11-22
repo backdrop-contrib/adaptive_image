@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Adaptive - Adaptive images for Drupal
+ * Adaptive Image - Adaptive images for Drupal
  * @see http://adaptive-images.com/
  *
  * @author
@@ -13,22 +13,23 @@
  * Copy of image_style_deliver() for use with adaptive images.
  */
 function adaptive_image_style_deliver($style, $scheme) {
+error_log('adaptive_image_style_deliver');
   $resolution = '';
   $settings = $resolutions = array();
-  $settings = adaptive_effect_settings($style);
+  $settings = adaptive_image_effect_settings($style);
 
   $mobile_first = (boolean) $settings['mobile_first'];
   $resolutions = explode(',', $settings['resolutions']);
 
   /* Do we need to switch mobile first off? */
-  if (adaptive_browser_detect()) {
+  if (adaptive_image_browser_detect()) {
     $mobile_first = FALSE;
   }
 
   /* Check to see if a valid cookie exists */
-  if (count($resolutions) && isset($_COOKIE['adaptive'])) {
-    if (is_numeric($_COOKIE['adaptive'])) {
-      $client_width = (int) $_COOKIE['adaptive']; // store the cookie value in a variable
+  if (count($resolutions) && isset($_COOKIE['adaptive-image'])) {
+    if (is_numeric($_COOKIE['adaptive-image'])) {
+      $client_width = (int) $_COOKIE['adaptive-image']; // store the cookie value in a variable
 
       /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
       rsort($resolutions); // make sure the supplied break-points are in reverse size order
@@ -40,7 +41,7 @@ function adaptive_image_style_deliver($style, $scheme) {
         }
       }
     } else {
-      setcookie("adaptive", "", time() -1); // delete the mangled cookie
+      setcookie("adaptive-image", "", time() -1); // delete the mangled cookie
     }
   }
 
@@ -128,7 +129,7 @@ function adaptive_image_style_deliver($style, $scheme) {
 /**
  * Check for common desktop patterns in the user agent
  */
-function adaptive_browser_detect() {
+function adaptive_image_browser_detect() {
   $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
   // Identify the OS platform. Match only desktop OSs
@@ -140,12 +141,12 @@ function adaptive_browser_detect() {
 }
 
 /**
- * Get adaptive effect in style settings
+ * Get adaptive image effect from style settings
  */
-function adaptive_effect_settings($style) {
+function adaptive_image_effect_settings($style) {
   $settings = array();
   foreach ($style['effects'] as $effect) {
-    if ($effect['name'] == 'adaptive') {
+    if ($effect['name'] == 'adaptive_image') {
       $settings = $effect['data'];
     }
   }

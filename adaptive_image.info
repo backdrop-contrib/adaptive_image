@@ -1,4 +1,4 @@
-name = Adaptive
+name = Adaptive Image
 description = Support for adaptive images.
 core = 7.x
 
