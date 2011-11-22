@@ -13,7 +13,6 @@
  * Copy of image_style_deliver() for use with adaptive images.
  */
 function adaptive_image_style_deliver($style, $scheme) {
-error_log('adaptive_image_style_deliver');
   $resolution = '';
   $settings = $resolutions = array();
   $settings = adaptive_image_effect_settings($style);
