@@ -26,9 +26,9 @@ function adaptive_image_style_deliver($style, $scheme) {
   }
 
   /* Check to see if a valid cookie exists */
-  if (count($resolutions) && isset($_COOKIE['adaptive-image'])) {
-    if (is_numeric($_COOKIE['adaptive-image'])) {
-      $client_width = (int) $_COOKIE['adaptive-image']; // store the cookie value in a variable
+  if (count($resolutions) && isset($_COOKIE['adaptive_image'])) {
+    if (is_numeric($_COOKIE['adaptive_image'])) {
+      $client_width = (int) $_COOKIE['adaptive_image']; // store the cookie value in a variable
 
       /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
       rsort($resolutions); // make sure the supplied break-points are in reverse size order
@@ -40,7 +40,7 @@ function adaptive_image_style_deliver($style, $scheme) {
         }
       }
     } else {
-      setcookie("adaptive-image", "", time() -1); // delete the mangled cookie
+      setcookie("adaptive_image", "", time() -1); // delete the mangled cookie
     }
   }
 

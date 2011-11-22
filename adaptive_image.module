@@ -15,7 +15,7 @@
 function adaptive_image_init() {
   // No need for drupal behaviours, jquery compatibility wrapper nor ready event
   // This is inline to prevent wait time while loading the script
-  $js = "document.cookie = 'adaptive-image=' + Math.max(screen.width, screen.height) + '; path=/';";
+  $js = "document.cookie = 'adaptive_image=' + Math.max(screen.width, screen.height) + '; path=/';";
   drupal_add_js($js,
     // First-come, first-served
     array(
@@ -147,8 +147,14 @@ function adaptive_image_preprocess_image(&$variables) {
 
     // Check if style contains the adaptive image effect
     if ($style && adaptive_image_contains_effect($style)) {
-      // Reconstruct the image path to %/%style_name/adaptive-image/%
-      $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive-image', $variables['path']);
+      if (is_numeric($_COOKIE['adaptive_image'])) {
+        // Reconstruct the image path to %/%style_name/adaptive-image/%
+        $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive-image', $variables['path']);
+      }
+      else {
+        // Reconstruct the image path to %/%style_name/adaptive-image/%
+        $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive-image', $variables['path']);
+      }
       $variables['attributes']['class'] = 'adaptive-image';
       // Remove fixed image dimensions
       unset($variables['height']);
