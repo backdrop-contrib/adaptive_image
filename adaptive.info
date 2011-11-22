@@ -1,0 +1,5 @@
+name = Adaptive
+description = Support for adaptive images.
+core = 7.x
+
+dependencies[] = image

@@ -1,0 +1,172 @@
+<?php
+
+/**
+ * @file
+ * Adaptive - Adaptive images for Drupal
+ * @see http://adaptive-images.com/
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */
+
+/**
+ * Implements hook_init().
+ */
+function adaptive_init() {
+  // No need for drupal behaviours, jquery compatibility wrapper nor ready event
+  // This is inline to prevent wait time while loading the script
+  $js = "document.cookie = 'adaptive=' + Math.max(screen.width, screen.height) + '; path=/';";
+  drupal_add_js($js,
+    // First-come, first-served
+    array(
+      'type' => 'inline',
+      'scope' => 'header',
+      'group' => JS_LIBRARY,
+      'every_page' => TRUE,
+      'weight' => -500,
+    )
+  );
+  drupal_add_css(drupal_get_path('module', 'adaptive') . '/css/adaptive.css');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function adaptive_menu() {
+  $items = array();
+
+  // Add image style generation paths adaptive URLs.
+  if (module_exists('image')) {
+    // Generate and deliver image derivatives of public files.
+    $directory_path = file_stream_wrapper_get_instance_by_scheme('public')->getDirectoryPath();
+    $items[$directory_path . '/styles/%image_style/adaptive'] = array(
+      'title' => 'Generate image style',
+      'page callback' => 'adaptive_image_style_deliver',
+      'page arguments' => array(count(explode('/', $directory_path)) + 1),
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+      'file' => 'adaptive.image.inc',
+    );
+    // Generate and deliver image derivatives of private files.
+    $items['system/files/styles/%image_style/adaptive'] = array(
+      'title' => 'Generate adaptive image style',
+      'page callback' => 'adaptive_image_style_deliver',
+      'page arguments' => array(3),
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+      'file' => 'adaptive.image.inc',
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_image_effect_info().
+ */
+function adaptive_image_effect_info() {
+  $effects = array();
+  $effects['adaptive'] = array(
+    'label' => t('Adaptive'),
+    'help' => t('Adaptive scale according to client resolution.'),
+    'effect callback' => 'image_scale_effect',
+    'dimensions callback' => 'image_scale_dimensions',
+    'form callback' => 'adaptive_scale_form',
+    'summary theme' => 'adaptive_scale_summary',
+  );
+  return $effects;
+}
+
+/**
+ * Form structure for the image scale form.
+ *
+ * Note that this is not a complete form, it only contains the portion of the
+ * form for configuring the scale options. Therefore it does not not need to
+ * include metadata about the effect, nor a submit button.
+ *
+ * @param $data
+ *   The current configuration for this scale effect.
+ */
+function adaptive_scale_form($data) {
+  $form['resolutions'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Resolutions'),
+    '#default_value' => isset($data['resolutions']) ? $data['resolutions'] : '1382, 992, 768, 480',
+    '#required' => TRUE,
+    '#description' => t('The resolution break-points to use (screen widths, in pixels).'),
+  );
+  $form['mobile_first'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Mobile first'),
+    '#default_value' => isset($data['mobile_first']) ? $data['mobile_first'] : FALSE,
+    '#description' => t("Check this to send the smallest version when the resolution can not be determined."),
+  );
+  // Provide needed defaults
+  $form['height']  = array('#type' => 'hidden','#default_value' => NULL);
+  $form['width']   = array('#type' => 'hidden','#default_value' => NULL);
+  $form['upscale'] = array('#type' => 'hidden','#default_value' => NULL);
+  return $form;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function adaptive_theme() {
+  return array(
+    'adaptive_scale_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+  );
+}
+
+/**
+ * Returns HTML for a summary of an image scale effect.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this scale effect.
+ *
+ * @ingroup themeable
+ */
+function theme_adaptive_scale_summary($variables) {
+  $data = $variables['data'];
+  if ($data['resolutions']) {
+    return check_plain($data['resolutions']);
+  }
+}
+
+/**
+ * Implements template_preprocess_image().
+ *
+ * Adds a class to adaptive images for max-width.
+ */
+function adaptive_preprocess_image(&$variables) {
+  if (isset($variables['style_name'])) {
+    // Get image style settings
+    $style = image_style_load($variables['style_name']);
+
+    // Check if style contains the adaptive effect
+    if ($style && adaptive_contains_effect($style)) {
+      // Reconstruct the image path to %/%style_name/adaptive/%
+      $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive', $variables['path']);
+      $variables['attributes']['class'] = 'adaptive';
+      // Remove fixed image dimensions
+      unset($variables['height']);
+      unset($variables['width']);
+    }
+  }
+}
+
+/**
+ * Check for adaptive effect in style
+ */
+function adaptive_contains_effect($style) {
+  $found = FALSE;
+  foreach ($style['effects'] as $effect) {
+    if ($effect['name'] == 'adaptive') {
+      $found = TRUE;
+      $settings = $effect['data'];
+    }
+  }
+  return $found;
+}
