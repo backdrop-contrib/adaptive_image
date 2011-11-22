@@ -13,7 +13,6 @@
  * Copy of image_style_deliver() for use with adaptive images.
  */
 function adaptive_image_style_deliver($style, $scheme) {
-  $resolution = '';
   $settings = $resolutions = array();
   $settings = adaptive_image_effect_settings($style);
 
@@ -25,24 +24,7 @@ function adaptive_image_style_deliver($style, $scheme) {
     $mobile_first = FALSE;
   }
 
-  /* Check to see if a valid cookie exists */
-  if (count($resolutions) && isset($_COOKIE['adaptive_image'])) {
-    if (is_numeric($_COOKIE['adaptive_image'])) {
-      $client_width = (int) $_COOKIE['adaptive_image']; // store the cookie value in a variable
-
-      /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
-      rsort($resolutions); // make sure the supplied break-points are in reverse size order
-      $resolution = $resolutions[0]; // by default it's the largest supported break-point
-
-      foreach ($resolutions as $break_point) { // filter down
-        if ($client_width <= $break_point) {
-          $resolution = $break_point;
-        }
-      }
-    } else {
-      setcookie("adaptive_image", "", time() -1); // delete the mangled cookie
-    }
-  }
+  $resolution = adaptive_image_resolution($resolutions);
 
   /* No resolution was found (no cookie or invalid cookie) */
   if (!$resolution && count($resolutions)) {
@@ -137,17 +119,4 @@ function adaptive_image_browser_detect() {
       preg_match('/X11/', $userAgent)) {
     return TRUE;
   }
-}
-
-/**
- * Get adaptive image effect from style settings
- */
-function adaptive_image_effect_settings($style) {
-  $settings = array();
-  foreach ($style['effects'] as $effect) {
-    if ($effect['name'] == 'adaptive_image') {
-      $settings = $effect['data'];
-    }
-  }
-  return $settings;
 }

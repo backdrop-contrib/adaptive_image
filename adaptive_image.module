@@ -141,21 +141,37 @@ function theme_adaptive_image_scale_summary($variables) {
  * Adds a class to adaptive images for max-width.
  */
 function adaptive_image_preprocess_image(&$variables) {
+  global $base_url;
+
   if (isset($variables['style_name'])) {
     // Get image style settings
     $style = image_style_load($variables['style_name']);
 
     // Check if style contains the adaptive image effect
     if ($style && adaptive_image_contains_effect($style)) {
-      if (is_numeric($_COOKIE['adaptive_image'])) {
-        // Reconstruct the image path to %/%style_name/adaptive-image/%
-        $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive-image', $variables['path']);
+      $settings = adaptive_image_effect_settings($style);
+      $resolutions = explode(',', $settings['resolutions']);
+      $resolution = adaptive_image_resolution($resolutions);
+
+      // Only construct direct path if not private
+      if (!strpos($variables['path'], '/system/') && is_numeric($resolution)) {
+        $path_parts = pathinfo($variables['path']);
+        $derivative_uri = $path_parts['dirname'] . '/' . $resolution . '/' . $path_parts['basename'];
+      }
+
+      if (isset($derivative_uri) && file_exists(str_replace($base_url, '.', $derivative_uri))) {
+        // Deliver existing path to bypass menu callback
+        $variables['path'] = $derivative_uri;
       }
       else {
-        // Reconstruct the image path to %/%style_name/adaptive-image/%
+        // Reconstruct the image path to %/%style_name/adaptive-image/% to
+        // trigger image generation or file access check
         $variables['path'] = str_replace('styles/' . $variables['style_name'], 'styles/' . $variables['style_name'] . '/adaptive-image', $variables['path']);
       }
+
+      // Add class for styling
       $variables['attributes']['class'] = 'adaptive-image';
+
       // Remove fixed image dimensions
       unset($variables['height']);
       unset($variables['width']);
@@ -175,4 +191,43 @@ function adaptive_image_contains_effect($style) {
     }
   }
   return $found;
+}
+
+/**
+ * Get adaptive image effect from style settings
+ */
+function adaptive_image_effect_settings($style) {
+  $settings = array();
+  foreach ($style['effects'] as $effect) {
+    if ($effect['name'] == 'adaptive_image') {
+      $settings = $effect['data'];
+    }
+  }
+  return $settings;
+}
+
+/**
+ * Determine current resolution
+ */
+function adaptive_image_resolution($resolutions) {
+  $resolution = '';
+  /* Check to see if a valid cookie exists */
+  if (count($resolutions) && isset($_COOKIE['adaptive_image'])) {
+    if (is_numeric($_COOKIE['adaptive_image'])) {
+      $client_width = (int) $_COOKIE['adaptive_image']; // store the cookie value in a variable
+
+      /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
+      rsort($resolutions); // make sure the supplied break-points are in reverse size order
+      $resolution = $resolutions[0]; // by default it's the largest supported break-point
+
+      foreach ($resolutions as $break_point) { // filter down
+        if ($client_width <= $break_point) {
+          $resolution = $break_point;
+        }
+      }
+    } else {
+      setcookie("adaptive_image", "", time() -1); // delete the mangled cookie
+    }
+  }
+  return $resolution;
 }
