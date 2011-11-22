@@ -5,11 +5,20 @@ http://drupal.org/project/adaptive_image
 
 DESCRIPTION
 -----------
+The Adaptive image module provides device-appropriate versions of images from your fields.
+You can activate adaptive images by adding an adaptive effect to any of your image styles.
 
+The used technique is derived from http://adaptive-images.com/ by Matt Wilcox.
+The hard work is done by Drupal core no need for any additional rewrites.
+If image styles work on your website, this module will too.
 
 REQUIREMENTS
 ------------
 Drupal 7.x
+
+CLIENTSIDE REQUIREMENTS
+------------------------
+JavaScript enabled
 
 INSTALLING
 ----------
