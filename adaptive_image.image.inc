@@ -114,9 +114,9 @@ function adaptive_image_browser_detect() {
   $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
   // Identify the OS platform. Match only desktop OSs
-  if (preg_match('/Macintosh/', $userAgent) ||
-      preg_match('/Windows NT/', $userAgent) ||
-      preg_match('/X11/', $userAgent)) {
+  if (strpos($userAgent,'macintosh') ||
+      strpos($userAgent,'windows nt') ||
+      strpos($userAgent,'x11')
     return TRUE;
   }
 }

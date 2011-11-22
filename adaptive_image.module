@@ -98,7 +98,7 @@ function adaptive_image_scale_form($data) {
   $form['mobile_first'] = array(
     '#type' => 'checkbox',
     '#title' => t('Mobile first'),
-    '#default_value' => isset($data['mobile_first']) ? $data['mobile_first'] : FALSE,
+    '#default_value' => isset($data['mobile_first']) ? $data['mobile_first'] : TRUE,
     '#description' => t("Check this to send the smallest version when the resolution can not be determined."),
   );
   // Provide needed defaults
