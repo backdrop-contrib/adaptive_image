@@ -116,7 +116,7 @@ function adaptive_image_browser_detect() {
   // Identify the OS platform. Match only desktop OSs
   if (strpos($userAgent,'macintosh') ||
       strpos($userAgent,'windows nt') ||
-      strpos($userAgent,'x11')
+      strpos($userAgent,'x11')) {
     return TRUE;
   }
 }
