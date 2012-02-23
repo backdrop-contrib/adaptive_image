@@ -37,8 +37,13 @@ function adaptive_image_style_deliver($style, $scheme) {
     drupal_exit();
   }
 
-  $style['effects'][1]['data']['width'] = $resolution;
-  $style['effects'][1]['data']['height'] = NULL;
+  foreach ($style['effects'] as $id => $effect) {
+    if ($effect['name'] == 'adaptive_image') {
+      $style['effects'][$id]['data']['width'] = $resolution;
+      $style['effects'][$id]['data']['height'] = NULL;
+      break;
+    }
+  }
 
   $args = func_get_args();
   array_shift($args);
