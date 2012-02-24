@@ -13,8 +13,12 @@
  * Implements hook_init().
  */
 function adaptive_image_init() {
+  // According to the documentation of hook_init() it should not be used to
+  // load JS or CSS. The CSS case has been moved to the info file. But the JS is
+  // here by intention, as we want it inline to prevent wait time while loading
+  // the script
+
   // No need for drupal behaviours, jquery compatibility wrapper nor ready event
-  // This is inline to prevent wait time while loading the script
   $js = "document.cookie = 'adaptive_image=' + Math.max(screen.width, screen.height) + '; path=/';";
   drupal_add_js($js,
     // First-come, first-served
@@ -26,7 +30,6 @@ function adaptive_image_init() {
       'weight' => -500,
     )
   );
-  drupal_add_css(drupal_get_path('module', 'adaptive_image') . '/css/adaptive-image.css');
 }
 
 /**

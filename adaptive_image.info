@@ -3,3 +3,5 @@ description = Support for adaptive images.
 core = 7.x
 
 dependencies[] = image
+
+stylesheets[all][] = css/adaptive-image.css
