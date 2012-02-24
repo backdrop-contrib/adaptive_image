@@ -104,9 +104,12 @@ function adaptive_image_scale_form($data) {
     '#default_value' => isset($data['mobile_first']) ? $data['mobile_first'] : TRUE,
     '#description' => t("Check this to send the smallest version when the resolution can not be determined."),
   );
+
+  $resolutions = explode(',', str_replace(' ', '', $form['resolutions']['#default_value']));
+  $resolution = adaptive_image_resolution($resolutions);
   // Provide needed defaults
   $form['height']  = array('#type' => 'hidden','#default_value' => NULL);
-  $form['width']   = array('#type' => 'hidden','#default_value' => NULL);
+  $form['width']   = array('#type' => 'hidden','#default_value' => $resolution);
   $form['upscale'] = array('#type' => 'hidden','#default_value' => NULL);
   return $form;
 }
