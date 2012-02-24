@@ -189,14 +189,12 @@ function adaptive_image_preprocess_image(&$variables) {
  * Check for adaptive image effect from style
  */
 function adaptive_image_contains_effect($style) {
-  $found = FALSE;
   foreach ($style['effects'] as $effect) {
     if ($effect['name'] == 'adaptive_image') {
-      $found = TRUE;
-      $settings = $effect['data'];
+      return TRUE;
     }
   }
-  return $found;
+  return FALSE;
 }
 
 /**
