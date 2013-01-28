@@ -142,6 +142,26 @@ function theme_adaptive_image_scale_summary($variables) {
 }
 
 /**
+ * Validate Input of Resolutions-Field
+ */
+function adaptive_image_form_image_effect_form_alter(&$form, &$form_state, $form_id) {
+  $form['#validate'] = array('_adaptive_image_form_image_effect_form_validate');
+}
+
+/**
+ * Form validation handler
+ */
+function _adaptive_image_form_image_effect_form_validate($form, &$form_state) {
+  $resolutions = explode(',', $form['data']['resolutions']['#value']);
+  foreach($resolutions as $width) {
+    $width = trim($width, ' ');
+    if(!is_numeric($width)) {
+      form_set_error('resolutions', t("Values have to be seperated by comma. For example: 1382, 992, 768, 480"));
+    }
+  } 
+}
+
+/**
  * Implements template_preprocess_image().
  *
  * Adds a class to adaptive images for max-width.
