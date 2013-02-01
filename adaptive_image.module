@@ -247,7 +247,7 @@ function adaptive_image_resolution($resolutions) {
       $resolution = $resolutions[0]; // by default it's the largest supported break-point
 
       foreach ($resolutions as $break_point) { // filter down
-        if ($client_width <= $break_point) {
+        if ($client_width <= trim($break_point, ' ')) {
           $resolution = $break_point;
         }
       }
