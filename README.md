@@ -1,6 +1,6 @@
-Adaptive Image
+Drupal Adaptive Image Module
+========================================
 http://drupal.org/project/adaptive_image
-====================================
 
 
 DESCRIPTION
