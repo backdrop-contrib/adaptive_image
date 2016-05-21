@@ -2,5 +2,6 @@ name = Adaptive Image
 description = Support for adaptive images.
 backdrop = 1.x
 version = 1.0.0
+type = module
 dependencies[] = image
 stylesheets[all][] = css/adaptive-image.css
