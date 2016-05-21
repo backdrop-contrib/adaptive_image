@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Adaptive Image - Adaptive images for Drupal
+ * Adaptive Image - Adaptive images for Backdrop
  * @see http://adaptive-images.com/
  *
  * @author
@@ -34,7 +34,7 @@ function adaptive_image_style_deliver($style, $scheme) {
 
   // Check that the style is defined and the scheme is valid.
   if (!$style || !file_stream_wrapper_valid_scheme($scheme)) {
-    drupal_exit();
+    backdrop_exit();
   }
 
   foreach ($style['effects'] as $id => $effect) {
@@ -67,11 +67,11 @@ function adaptive_image_style_deliver($style, $scheme) {
     else {
       $headers = module_invoke_all('file_download', $image_uri);
       if (in_array(-1, $headers) || empty($headers)) {
-        return drupal_access_denied();
+        return backdrop_access_denied();
       }
       if (count($headers)) {
         foreach ($headers as $name => $value) {
-          drupal_add_http_header($name, $value);
+          backdrop_add_http_header($name, $value);
         }
       }
     }
@@ -79,16 +79,16 @@ function adaptive_image_style_deliver($style, $scheme) {
 
   // Don't start generating the image if the derivative already exists or if
   // generation is in progress in another thread.
-  $lock_name = 'image_style_deliver:' . $style['name'] . ':' . drupal_hash_base64($image_uri);
+  $lock_name = 'image_style_deliver:' . $style['name'] . ':' . backdrop_hash_base64($image_uri);
   if (!file_exists($derivative_uri)) {
     $lock_acquired = lock_acquire($lock_name);
     if (!$lock_acquired) {
       // Tell client to retry again in 3 seconds. Currently no browsers are known
       // to support Retry-After.
-      drupal_add_http_header('Status', '503 Service Unavailable');
-      drupal_add_http_header('Retry-After', 3);
+      backdrop_add_http_header('Status', '503 Service Unavailable');
+      backdrop_add_http_header('Retry-After', 3);
       print t('Image generation in progress. Try again shortly.');
-      drupal_exit();
+      backdrop_exit();
     }
   }
 
@@ -106,9 +106,9 @@ function adaptive_image_style_deliver($style, $scheme) {
   }
   else {
     watchdog('image', 'Unable to generate the derived image located at %path.', array('%path' => $derivative_uri));
-    drupal_add_http_header('Status', '500 Internal Server Error');
+    backdrop_add_http_header('Status', '500 Internal Server Error');
     print t('Error generating image.');
-    drupal_exit();
+    backdrop_exit();
   }
 }
 

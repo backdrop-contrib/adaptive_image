@@ -1,10 +1,6 @@
-Drupal Adaptive Image Module
-========================================
-http://drupal.org/project/adaptive_image
+Adaptive Image
+---------------------
 
-
-DESCRIPTION
------------
 The Adaptive image module provides device-appropriate versions of images from your fields.
 You can activate adaptive images by adding an adaptive effect to any of your image styles.
 
@@ -12,42 +8,96 @@ The used technique is derived from http://adaptive-images.com/ by Matt Wilcox.
 The hard work is done by Drupal core no need for any additional rewrites.
 If image styles work on your website, this module will too.
 
+CONTENTS OF THIS FILE
+---------------------
+
+ - Introduction
+ - Tested
+ - Known Issues
+ - Special Thanks
+ - Requirements
+ - Installation
+ - Coming From Drupal?
+ - Usage
+ - License
+ - Credits
+ - Maintainers
+
+TESTED
+-----
+
+Working in Backdrop 1.4.
+
+KNOWN ISSUES
+---------------------
+
+None -- this is a simple module that requires manual effort in the image styles to see any effect.
+
+SPECIAL THANKS
+--------------
+
+erdfisch - Sponsored development
+
 REQUIREMENTS
 ------------
-Drupal 7.x
 
-CLIENTSIDE REQUIREMENTS
-------------------------
-JavaScript enabled
+Javascript enabled on your website.
 
-INSTALLING
-----------
-1. To install the module copy the 'adaptive_image' folder to your sites/all/modules directory.
+INSTALLATION
+------------
 
-2. Read more about installing modules at http://drupal.org/node/70151
+Install this module using the official Backdrop CMS instructions at https://backdropcms.org/guide/modules
 
 
-CONFIGURING AND USING
----------------------
-1. Go to admin/config/media/image-styles
-   Edit an existing or add a new style. Add the Adaptive image effect.
-   Click on 'Update style' button. 
+COMING FROM DRUPAL?
+-------------------
 
-2. Go to admin/structure/types
-   Click on "manage display".
-   Choose a "image" field and click on the edit button.
-   Choose the previously updated style as image style.
-   Click on "Update".
+Nothing substantial changed from the port of 7.x-1.4
+
+PERMISSIONS
+------------
+
+none
+
+USAGE
+-----
+
+1.
+
+- Go to admin/config/media/image-styles
+
+- Edit an existing or add a new style. Add the Adaptive image effect.
+
+- Click on 'Update style' button.
+
+2.
+
+- Go to admin/structure/types
+
+- Click on "manage display".
+
+- Choose a "image" field and click on the edit button.
+
+- Choose the previously updated style as image style.
+
+- Click on "Update".
 
 
-REPORTING ISSUE. REQUESTING SUPPORT. REQUESTING NEW FEATURE
------------------------------------------------------------
-1. Go to the module issue queue at http://drupal.org/project/issues/adaptive_image?status=All&categories=All
-2. Click on CREATE A NEW ISSUE link.
-3. Fill the form.
-4. To get a status report on your request go to http://drupal.org/project/issues/user
+LICENSE
+-------
 
+This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
 
-UPGRADING
----------
-Read more at http://drupal.org/node/250790
+CREDITS
+-----------
+
+<https://www.drupal.org/u/sanduhrs>
+
+MAINTAINERS
+-----------
+
+- seeking or biolithic <https://github.com/biolithic>
+
+Ported to Backdrop by:
+
+- biolithic <https://github.com/biolithic>

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Adaptive Image - Adaptive images for Drupal
+ * Adaptive Image - Adaptive images for Backdrop
  * @see http://adaptive-images.com/
  *
  * @author
@@ -18,9 +18,9 @@ function adaptive_image_init() {
   // here by intention, as we want it inline to prevent wait time while loading
   // the script
 
-  // No need for drupal behaviours, jquery compatibility wrapper nor ready event
-  $js = "document.cookie = 'adaptive_image=' + Math.max(screen.width, screen.height) + '; path=/';";
-  drupal_add_js($js,
+  // No need for backdrop behaviours, jquery compatibility wrapper nor ready event
+ $js = "document.cookie='adaptive_image='+Math.max(screen.width,screen.height)+('devicePixelRatio' in window ? ','+devicePixelRatio : ',1')+'; path=/';";
+  backdrop_add_js($js,
     // First-come, first-served
     array(
       'type' => 'inline',
@@ -142,28 +142,6 @@ function theme_adaptive_image_scale_summary($variables) {
 }
 
 /**
- * Validate Input of Resolutions-Field
- */
-function adaptive_image_form_image_effect_form_alter(&$form, &$form_state, $form_id) {
-  if(strpos($form['#action'], 'adaptive_image')) {
-  $form['#validate'] = array('_adaptive_image_form_image_effect_form_validate');
-  }
-}
-
-/**
- * Form validation handler
- */
-function _adaptive_image_form_image_effect_form_validate($form, &$form_state) {
-  $resolutions = explode(',', $form['data']['resolutions']['#value']);
-  foreach($resolutions as $width) {
-    $width = trim($width, ' ');
-    if(!is_numeric($width)) {
-      form_set_error('resolutions', t("Values have to be seperated by comma. For example: 1382, 992, 768, 480"));
-    }
-  } 
-}
-
-/**
  * Implements template_preprocess_image().
  *
  * Adds a class to adaptive images for max-width.
@@ -239,19 +217,59 @@ function adaptive_image_resolution($resolutions) {
   $resolution = '';
   /* Check to see if a valid cookie exists */
   if (count($resolutions) && isset($_COOKIE['adaptive_image'])) {
-    if (is_numeric($_COOKIE['adaptive_image'])) {
-      $client_width = (int) $_COOKIE['adaptive_image']; // store the cookie value in a variable
-
-      /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
-      rsort($resolutions); // make sure the supplied break-points are in reverse size order
-      $resolution = $resolutions[0]; // by default it's the largest supported break-point
-
-      foreach ($resolutions as $break_point) { // filter down
-        if ($client_width <= trim($break_point, ' ')) {
-          $resolution = $break_point;
-        }
-      }
+    $cookie_value = $_COOKIE['adaptive_image'];
+    // does the cookie look valid? [whole number, comma, potential floating number]
+    if (! preg_match("/^[0-9]+[,]*[0-9\.]+$/", "$cookie_value")) { // no it doesn't look valid
+      setcookie("adaptive_image", "$cookie_value", time()-100); // delete the mangled cookie
     } else {
+      if (is_numeric($cookie_value[0])) {
+        $cookie_data    = explode(",", $_COOKIE['adaptive_image']);
+        $client_width   = (int) $cookie_data[0]; // store the cookie value in a variable
+        $total_width    = $client_width; // set a default
+        $pixel_density  = 1; // set a default, used for non-retina style JS snippet
+        if (@$cookie_data[1]) { // the device's pixel density factor (physical pixels per CSS pixel)
+          $pixel_density = $cookie_data[1];
+         }
+
+        /* the client width in the cookie is valid, now fit that number into the correct resolution break point */
+        rsort($resolutions); // make sure the supplied break-points are in reverse size order
+        $resolution = $resolutions[0]; // by default it's the largest supported break-point
+
+        // if pixel density is not 1, then we need to be smart about adapting and fitting into the defined breakpoints
+        if($pixel_density != 1) {
+          $total_width = $client_width * $pixel_density; // required physical pixel width of the image
+
+          if ($total_width > $resolutions[0]) {
+            foreach ($resolutions as $break_point) { // filter down
+              if ($total_width <= $break_point) {
+                $resolution = $break_point;
+              }
+            }
+            // now apply the multiplier
+            $resolution = $resolution * pixel_density;
+          }
+          // the required image fits into the existing breakpoints in $resolutions
+          else {
+            foreach ($resolutions as $break_point) { // filter down
+              if ($total_width <= $break_point) {
+                $resolution = $break_point;
+              }
+            }
+          } // close if ($total_width > $resolutions[0])
+        } // close if($pixel_density != 1)
+
+        else { // pixel density is 1, just fit it into one of the breakpoints
+          foreach ($resolutions as $break_point) { // filter down
+            if ($total_width <= $break_point) {
+              $resolution = $break_point;
+            }
+          }
+        }
+      } // close if (is_numeric($cookie_value[0]))
+
+      else {
+        setcookie("adaptive_image", "", time() -1); // delete the mangled cookie
+       }
       setcookie("adaptive_image", "", time() -1); // delete the mangled cookie
     }
   }
