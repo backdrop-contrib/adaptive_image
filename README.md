@@ -1,5 +1,5 @@
 Adaptive Image
----------------------
+==============
 
 The Adaptive image module provides device-appropriate versions of images from your fields.
 You can activate adaptive images by adding an adaptive effect to any of your image styles.
